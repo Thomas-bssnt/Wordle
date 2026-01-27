@@ -27,7 +27,6 @@ def _render_hint_row(game) -> str:
     - Correct letters from the previous guess
     - Underscores for the rest
     """
-
     first_letter = _render_letter(game.first_letter, LetterStatus.CORRECT)
 
     if not game.guesses:
@@ -54,13 +53,39 @@ def _render_empty_rows(game):
         yield "_" * game.n_letters
 
 
+def _frame_lines(lines: list[str], n_letters: int) -> list[str]:
+    """Add a simple box border around the grid."""
+    if not lines:
+        return lines
+
+    top = "┌" + "─" * n_letters + "┐"
+    bottom = "└" + "─" * n_letters + "┘"
+
+    framed = [top]
+    for line in lines:
+        framed.append(f"│{line}│")
+    framed.append(bottom)
+
+    return framed
+
+
 def display_game(game) -> None:
-    """Main display function: renders full board exactly as before."""
+    """Main display function: renders full board with borders."""
+    lines = []
+
+    # 1. Past guesses
     for guess in game.guesses:
-        print(_render_guess_row(guess))
+        lines.append(_render_guess_row(guess))
 
+    # 2. Next hint + empty rows (only if not finished)
     if not game.is_finished:
-        print(_render_hint_row(game))
-
+        lines.append(_render_hint_row(game))
         for row in _render_empty_rows(game):
-            print(row)
+            lines.append(row)
+
+    # 3. Frame them
+    framed_lines = _frame_lines(lines, game.n_letters)
+
+    # 4. Print
+    for line in framed_lines:
+        print(line)
