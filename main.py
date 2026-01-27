@@ -1,11 +1,20 @@
 import random
 import unicodedata
+from enum import Enum
 from pathlib import Path
 
 # ANSI color codes
 COLOR_RESET = "\033[0m"
 COLOR_YELLOW = "\033[43m"
 COLOR_RED = "\033[41m"
+
+
+class LetterStatus(Enum):
+    """Represents the status of a letter in a Wordle guess."""
+
+    WRONG = 0
+    PRESENT = 1
+    CORRECT = 2
 
 
 class Wordle:
@@ -25,7 +34,7 @@ class Wordle:
             n_letters, dictionary_path
         )
 
-        self.guesses: list[tuple[tuple[str, int]]] = []
+        self.guesses: list[tuple[tuple[str, LetterStatus]]] = []
 
     def make_a_guess(self, guess: str) -> None:
         if self.is_finished:
@@ -49,28 +58,28 @@ class Wordle:
 
         self.guesses.append(self._check_guess(guess))
 
-    def _check_guess(self, guess: str) -> tuple[tuple[str, int]]:
+    def _check_guess(self, guess: str) -> tuple[tuple[str, LetterStatus]]:
         guess_checked = []
         letters = list(self._secret_word)
         for i, letter in enumerate(guess):
             if letter in letters:
                 letters.remove(letter)
                 if letter == self._secret_word[i]:
-                    guess_checked.append((letter, 2))
+                    guess_checked.append((letter, LetterStatus.CORRECT))
                 else:
-                    guess_checked.append((letter, 1))
+                    guess_checked.append((letter, LetterStatus.PRESENT))
             else:
-                guess_checked.append((letter, 0))
+                guess_checked.append((letter, LetterStatus.WRONG))
         return tuple(guess_checked)
 
     def display(self) -> None:
         for guess in self.guesses:
             for letter, state in guess:
-                if state == 0:
+                if state == LetterStatus.WRONG:
                     print(letter, end="")
-                elif state == 1:
+                elif state == LetterStatus.PRESENT:
                     print(f"{COLOR_YELLOW}{letter}{COLOR_RESET}", end="")
-                elif state == 2:
+                elif state == LetterStatus.CORRECT:
                     print(f"{COLOR_RED}{letter}{COLOR_RESET}", end="")
             print()
 
@@ -80,7 +89,7 @@ class Wordle:
             if self.guesses:
                 guess = self.guesses[-1]
                 for letter, state in guess[1:]:
-                    if state == 2:
+                    if state == LetterStatus.CORRECT:
                         print(f"{COLOR_RED}{letter}{COLOR_RESET}", end="")
                     else:
                         print("_", end="")
@@ -99,8 +108,7 @@ class Wordle:
     def is_successful(self) -> bool:
         if not self.guesses:
             return False
-        return [v for _, v in self.guesses[-1]] == [2] * self.n_letters
-        # TODO change self.guesses[-1] == [2] * self.n_letters
+        return all(status == LetterStatus.CORRECT for _, status in self.guesses[-1])
 
     @property
     def solution(self) -> str | None:
