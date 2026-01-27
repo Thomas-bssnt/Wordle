@@ -25,21 +25,26 @@ def _render_guess_row(guess) -> str:
 def _render_hint_row(game) -> str:
     """
     Render the "hint" row:
-    - First letter of the secret (colored red)
+    - First letter of the secret (colored red) - only if require_first_letter is True
     - Correct letters from the previous guesses (colored red)
     - Underscores for the rest
     """
-    # First letter always shown
-    row = [_render_letter(game.first_letter, LetterStatus.CORRECT)]
+    # First letter shown only if required
+    if game.require_first_letter:
+        row = [_render_letter(game.first_letter, LetterStatus.CORRECT)]
+        start_pos = 1
+    else:
+        row = []
+        start_pos = 0
 
     # Initialize all positions as unknown
-    best_letters = ["_"] * (game.n_letters - 1)
+    best_letters = ["_"] * (game.n_letters - len(row))
 
     # Scan all past guesses
     for guess in game.guesses:
-        for i, (letter, status) in enumerate(guess[1:], start=1):  # skip first pos
+        for i, (letter, status) in enumerate(guess[start_pos:], start=start_pos):
             if status == LetterStatus.CORRECT:
-                best_letters[i - 1] = _render_letter(letter, status)
+                best_letters[i - start_pos] = _render_letter(letter, status)
 
     # Build row
     row.extend(best_letters)

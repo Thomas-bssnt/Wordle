@@ -21,10 +21,11 @@ class GameOverError(Exception):
 
 
 class Wordle:
-    def __init__(self, n_letters: int, n_guesses: int, language: str) -> None:
+    def __init__(self, n_letters: int, n_guesses: int, language: str, require_first_letter: bool = False) -> None:
         self.n_letters: int = n_letters
         self.n_guesses: int = n_guesses
         self.language: str = language
+        self.require_first_letter: bool = require_first_letter
 
         base_path = Path(__file__).parent / "dictionaries"
         secret_path = base_path / "french_secret.txt"
@@ -51,7 +52,7 @@ class Wordle:
         if not guess.isalpha():
             raise InvalidInputError(f"The guess '{guess}' contains invalid characters.")
 
-        if guess[0] != self._secret_word[0]:
+        if self.require_first_letter and guess[0] != self._secret_word[0]:
             raise InvalidInputError(
                 f"The guess '{guess}' needs to start with the letter {self._secret_word[0]}"
             )

@@ -2,11 +2,11 @@ from display import display_game
 from game import InvalidInputError, Wordle
 
 
-def play_wordle(n_letters, n_guesses, language):
+def play_wordle(n_letters, n_guesses, language, require_first_letter):
     play_again = True
     while play_again:
 
-        game = Wordle(n_letters, n_guesses, language)
+        game = Wordle(n_letters, n_guesses, language, require_first_letter)
 
         display_game(game)
         print()
@@ -48,4 +48,5 @@ if __name__ == "__main__":
     _n_letters = 5
     _n_guesses = 6
     _language = "french"
-    play_wordle(_n_letters, _n_guesses, _language)
+    require_first_letter = False
+    play_wordle(_n_letters, _n_guesses, _language, require_first_letter)
