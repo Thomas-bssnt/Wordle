@@ -28,31 +28,26 @@ class Wordle:
         self.guesses: list[tuple[tuple[str, int]]] = []
 
     def make_a_guess(self, guess: str) -> None:
-        if not self.is_finished:
-            guess = self._format_guess(guess)
-            if len(guess) == self.n_letters:
-                if guess.isalpha():
-                    if guess[0] == self._secret_word[0]:
-                        if guess in self._dictionary:
-                            self.guesses.append(self._check_guess(guess))
-                        else:
-                            raise InvalidInputError(
-                                f"The guess “{guess}” is not in the dictionary."
-                            )
-                    else:
-                        raise InvalidInputError(
-                            f"The guess “{guess}” needs to start with the letter {self._secret_word[0]}"
-                        )
-                else:
-                    raise InvalidInputError(
-                        f"The guess “{guess}” contains invalid characters."
-                    )
-            else:
-                raise InvalidInputError(
-                    f"The guess must have {self.n_letters} letters."
-                )
-        else:
+        if self.is_finished:
             raise GameOverError("The game has ended. You have no more guesses.")
+
+        guess = self._format_guess(guess)
+
+        if len(guess) != self.n_letters:
+            raise InvalidInputError(f"The guess must have {self.n_letters} letters.")
+
+        if not guess.isalpha():
+            raise InvalidInputError(f"The guess '{guess}' contains invalid characters.")
+
+        if guess[0] != self._secret_word[0]:
+            raise InvalidInputError(
+                f"The guess '{guess}' needs to start with the letter {self._secret_word[0]}"
+            )
+
+        if guess not in self._dictionary:
+            raise InvalidInputError(f"The guess '{guess}' is not in the dictionary.")
+
+        self.guesses.append(self._check_guess(guess))
 
     def _check_guess(self, guess: str) -> tuple[tuple[str, int]]:
         guess_checked = []
