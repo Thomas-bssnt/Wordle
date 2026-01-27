@@ -28,7 +28,7 @@ def _render_hint_row(game) -> str:
     - Underscores for the rest
     """
 
-    first_letter = _render_letter(game._secret_word[0], LetterStatus.CORRECT)
+    first_letter = _render_letter(game.first_letter, LetterStatus.CORRECT)
 
     if not game.guesses:
         # First row of the game => first letter + empty underscores

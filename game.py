@@ -91,6 +91,10 @@ class Wordle:
             return self._secret_word
         return None
 
+    @property
+    def first_letter(self) -> str:
+        return self._secret_word[0]
+
     @staticmethod
     def _get_n_letters_words(n_letters: int, file_path: Path) -> list[str]:
         with open(file_path) as file:
