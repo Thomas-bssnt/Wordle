@@ -1,5 +1,11 @@
 import random
 import unicodedata
+from pathlib import Path
+
+# ANSI color codes
+COLOR_RESET = "\033[0m"
+COLOR_YELLOW = "\033[43m"
+COLOR_RED = "\033[41m"
 
 
 class Wordle:
@@ -8,11 +14,15 @@ class Wordle:
         self.n_guesses: int = n_guesses
         self.language: str = language
 
+        base_path = Path(__file__).parent / "dictionaries"
+        secret_path = base_path / "french_secret.txt"
+        dictionary_path = base_path / "french.txt"
+
         self._secret_word: str = random.choice(
-            self._get_n_letters_words(n_letters, "dictionaries/french_secret.txt")
+            self._get_n_letters_words(n_letters, secret_path)
         )
         self._dictionary: list[str] = self._get_n_letters_words(
-            n_letters, "dictionaries/french.txt"
+            n_letters, dictionary_path
         )
 
         self.guesses: list[tuple[tuple[str, int]]] = []
@@ -64,19 +74,19 @@ class Wordle:
                 if state == 0:
                     print(letter, end="")
                 elif state == 1:
-                    print("\033[43m" + letter + "\033[0m", end="")
+                    print(f"{COLOR_YELLOW}{letter}{COLOR_RESET}", end="")
                 elif state == 2:
-                    print("\033[41m" + letter + "\033[0m", end="")
+                    print(f"{COLOR_RED}{letter}{COLOR_RESET}", end="")
             print()
 
         if not self.is_finished:
             # Next guess
-            print("\033[41m" + self._secret_word[0] + "\033[0m", end="")
+            print(f"{COLOR_RED}{self._secret_word[0]}{COLOR_RESET}", end="")
             if self.guesses:
                 guess = self.guesses[-1]
                 for letter, state in guess[1:]:
                     if state == 2:
-                        print("\033[41m" + letter + "\033[0m", end="")
+                        print(f"{COLOR_RED}{letter}{COLOR_RESET}", end="")
                     else:
                         print("_", end="")
                 print()
@@ -104,7 +114,7 @@ class Wordle:
         return None
 
     @staticmethod
-    def _get_n_letters_words(n_letters: int, file_path: str) -> list[str]:
+    def _get_n_letters_words(n_letters: int, file_path: Path) -> list[str]:
         with open(file_path) as file:
             words = [word.strip().upper() for word in file.readlines()]
         return [word for word in words if len(word) == n_letters]
