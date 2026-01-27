@@ -5,6 +5,8 @@ COLOR_RESET = "\033[0m"
 COLOR_YELLOW = "\033[43m"
 COLOR_RED = "\033[41m"
 
+_KEYBOARD_ROWS = ["AZERTYUIOP", "QSDFGHJKLM", "WXCVBN"]
+
 
 def _render_letter(letter: str, status: LetterStatus) -> str:
     """Return a colored version of a letter based on its status."""
@@ -69,6 +71,44 @@ def _frame_lines(lines: list[str], n_letters: int) -> list[str]:
     return framed
 
 
+def _merge_status(existing: LetterStatus | None, new: LetterStatus) -> LetterStatus:
+    """Keep the strongest status according to Wordle rules."""
+    if existing is None:
+        return new
+    priority = {
+        LetterStatus.WRONG: 0,
+        LetterStatus.PRESENT: 1,
+        LetterStatus.CORRECT: 2,
+    }
+    return new if priority[new] > priority[existing] else existing
+
+
+def _aggregate_keyboard(guesses) -> dict[str, LetterStatus]:
+    keyboard = {}
+    for guess in guesses:
+        for letter, status in guess:
+            keyboard[letter] = _merge_status(keyboard.get(letter), status)
+    return keyboard
+
+
+def _render_keyboard(game) -> list[str]:
+    kb = _aggregate_keyboard(game.guesses)
+    lines = []
+
+    for row in _KEYBOARD_ROWS:
+        rendered_row = " ".join(
+            (
+                _render_letter(ch, kb[ch])
+                if ch in kb and kb[ch] != LetterStatus.WRONG
+                else "_" if ch in kb and kb[ch] == LetterStatus.WRONG else ch
+            )
+            for ch in row
+        )
+        lines.append(rendered_row)
+
+    return lines
+
+
 def display_game(game) -> None:
     """Main display function: renders full board with borders."""
     lines = []
@@ -89,3 +129,9 @@ def display_game(game) -> None:
     # 4. Print
     for line in framed_lines:
         print(line)
+
+    # 5. Print keyboard (only if not finished)
+    if not game.is_finished:
+        print()
+        for row in _render_keyboard(game):
+            print(row)
