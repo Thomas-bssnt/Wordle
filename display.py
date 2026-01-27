@@ -26,25 +26,23 @@ def _render_hint_row(game) -> str:
     """
     Render the "hint" row:
     - First letter of the secret (colored red)
-    - Correct letters from the previous guess
+    - Correct letters from the previous guesses (colored red)
     - Underscores for the rest
     """
-    first_letter = _render_letter(game.first_letter, LetterStatus.CORRECT)
+    # First letter always shown
+    row = [_render_letter(game.first_letter, LetterStatus.CORRECT)]
 
-    if not game.guesses:
-        # First row of the game => first letter + empty underscores
-        return first_letter + "_" * (game.n_letters - 1)
+    # Initialize all positions as unknown
+    best_letters = ["_"] * (game.n_letters - 1)
 
-    last_guess = game.guesses[-1]
-    row = [first_letter]
+    # Scan all past guesses
+    for guess in game.guesses:
+        for i, (letter, status) in enumerate(guess[1:], start=1):  # skip first pos
+            if status == LetterStatus.CORRECT:
+                best_letters[i - 1] = _render_letter(letter, status)
 
-    # Skip first letter since it's always known
-    for letter, status in last_guess[1:]:
-        if status == LetterStatus.CORRECT:
-            row.append(_render_letter(letter, status))
-        else:
-            row.append("_")
-
+    # Build row
+    row.extend(best_letters)
     return "".join(row)
 
 
