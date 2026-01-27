@@ -74,12 +74,12 @@ class Wordle:
 
     def display(self) -> None:
         for guess in self.guesses:
-            for letter, state in guess:
-                if state == LetterStatus.WRONG:
+            for letter, status in guess:
+                if status == LetterStatus.WRONG:
                     print(letter, end="")
-                elif state == LetterStatus.PRESENT:
+                elif status == LetterStatus.PRESENT:
                     print(f"{COLOR_YELLOW}{letter}{COLOR_RESET}", end="")
-                elif state == LetterStatus.CORRECT:
+                elif status == LetterStatus.CORRECT:
                     print(f"{COLOR_RED}{letter}{COLOR_RESET}", end="")
             print()
 
@@ -88,8 +88,8 @@ class Wordle:
             print(f"{COLOR_RED}{self._secret_word[0]}{COLOR_RESET}", end="")
             if self.guesses:
                 guess = self.guesses[-1]
-                for letter, state in guess[1:]:
-                    if state == LetterStatus.CORRECT:
+                for letter, status in guess[1:]:
+                    if status == LetterStatus.CORRECT:
                         print(f"{COLOR_RED}{letter}{COLOR_RESET}", end="")
                     else:
                         print("_", end="")
