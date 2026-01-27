@@ -8,8 +8,12 @@ class Wordle:
         self.n_guesses: int = n_guesses
         self.language: str = language
 
-        self._secret_word: str = random.choice(self._get_n_letters_words(n_letters, "dictionaries/french_secret.txt"))
-        self._dictionary: list[str] = self._get_n_letters_words(n_letters, "dictionaries/french.txt")
+        self._secret_word: str = random.choice(
+            self._get_n_letters_words(n_letters, "dictionaries/french_secret.txt")
+        )
+        self._dictionary: list[str] = self._get_n_letters_words(
+            n_letters, "dictionaries/french.txt"
+        )
 
         self.guesses: list[tuple[tuple[str, int]]] = []
 
@@ -22,14 +26,21 @@ class Wordle:
                         if guess in self._dictionary:
                             self.guesses.append(self._check_guess(guess))
                         else:
-                            raise InvalidInputError(f"The guess “{guess}” is not in the dictionary.")
+                            raise InvalidInputError(
+                                f"The guess “{guess}” is not in the dictionary."
+                            )
                     else:
                         raise InvalidInputError(
-                            f"The guess “{guess}” needs to start with the letter {self._secret_word[0]}")
+                            f"The guess “{guess}” needs to start with the letter {self._secret_word[0]}"
+                        )
                 else:
-                    raise InvalidInputError(f"The guess “{guess}” contains invalid characters.")
+                    raise InvalidInputError(
+                        f"The guess “{guess}” contains invalid characters."
+                    )
             else:
-                raise InvalidInputError(f"The guess must have {self.n_letters} letters.")
+                raise InvalidInputError(
+                    f"The guess must have {self.n_letters} letters."
+                )
         else:
             raise GameOverError("The game has ended. You have no more guesses.")
 
@@ -101,7 +112,11 @@ class Wordle:
     @staticmethod
     def _format_guess(word: str) -> str:
         """Remove accents and convert to uppercase."""
-        return ''.join(char for char in unicodedata.normalize('NFD', word) if not unicodedata.combining(char)).upper()
+        return "".join(
+            char
+            for char in unicodedata.normalize("NFD", word)
+            if not unicodedata.combining(char)
+        ).upper()
 
 
 class InvalidInputError(Exception):
@@ -149,10 +164,10 @@ def play_wordle(n_letters, n_guesses, language):
             else:
                 invalid_input = True
         if play_again:
-            print("\n"*50)
+            print("\n" * 50)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _n_letters = 5
     _n_guesses = 6
     _language = "french"
