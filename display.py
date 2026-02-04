@@ -1,3 +1,5 @@
+import os
+
 from game import LetterStatus
 
 # ANSI color codes
@@ -102,3 +104,7 @@ def display_game(game) -> None:
         print()
         for row in _render_keyboard(game):
             print(row)
+
+
+def clear_screen():
+    os.system("cls" if os.name == "nt" else "clear")

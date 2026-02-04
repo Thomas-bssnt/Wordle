@@ -1,47 +1,64 @@
-from display import display_game
+from display import clear_screen, display_game
 from game import InvalidInputError, Wordle
 
 
-def play_wordle(n_letters, n_guesses, language, require_first_letter):
-    play_again = True
-    while play_again:
+def user_wants_to_play_again() -> bool:
+    """Ask the user if they want to play again."""
+    while True:
+        print("Voulez-vous faire une autre partie ? (oui | non)")
+        replay = input().strip().lower()
+        if replay == "oui":
+            return True
+        elif replay == "non":
+            return False
+        else:
+            print("Entrée invalide. Veuillez répondre par 'oui' ou 'non'.")
 
-        game = Wordle(n_letters, n_guesses, language, require_first_letter)
 
+def get_valid_guess(game: Wordle) -> str:
+    """Ask for guesses until a valid one is entered."""
+    while True:
+        guess = input().strip()
+        try:
+            game.make_guess(guess)
+            return guess
+        except InvalidInputError as e:
+            print(e)
+            print()
+
+
+def play_round(game: Wordle):
+    """Play a full game round."""
+    while not game.is_over:
+        clear_screen()
+
+        print()
         display_game(game)
         print()
 
-        while not game.is_over:
-            try:
-                game.make_guess(input())
-            except InvalidInputError as e:
-                print(e)
-            print()
-            display_game(game)
-            print()
+        get_valid_guess(game)
 
-        if game.is_success:
-            print(f"Félicitation ! Le mot à trouver était bien {game.solution}.")
-        else:
-            print(f"Dommage... Le mot à trouver était {game.solution}")
-        print()
+    clear_screen()
+    display_game(game)
+    print()
 
-        invalid_input = True
-        while invalid_input:
-            print()
-            print("Voulez-vous faire une autre partie ? (oui | non)")
-            choice = input()
-            if choice.upper() == "OUI":
-                play_again = True
-                invalid_input = False
-            elif choice.upper() == "NON":
-                play_again = False
-                invalid_input = False
-            else:
-                invalid_input = True
+    if game.is_success:
+        print(f"Félicitation ! Le mot à trouver était bien {game.solution}.")
+    else:
+        print(f"Dommage... Le mot à trouver était {game.solution}")
+    print()
 
-        if play_again:
-            print("\n" * 50)
+
+def play_wordle(n_letters, n_guesses, language, require_first_letter):
+    game = Wordle(n_letters, n_guesses, language, require_first_letter)
+
+    while True:
+        play_round(game)
+
+        if not user_wants_to_play_again():
+            break
+
+        game.reset()
 
 
 if __name__ == "__main__":
