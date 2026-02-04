@@ -11,16 +11,16 @@ def play_wordle(n_letters, n_guesses, language, require_first_letter):
         display_game(game)
         print()
 
-        while not game.is_finished:
+        while not game.is_over:
             try:
-                game.make_a_guess(input())
+                game.make_guess(input())
             except InvalidInputError as e:
                 print(e)
             print()
             display_game(game)
             print()
 
-        if game.is_successful:
+        if game.is_success:
             print(f"Félicitation ! Le mot à trouver était bien {game.solution}.")
         else:
             print(f"Dommage... Le mot à trouver était {game.solution}")
@@ -45,8 +45,8 @@ def play_wordle(n_letters, n_guesses, language, require_first_letter):
 
 
 if __name__ == "__main__":
-    _n_letters = 5
-    _n_guesses = 6
-    _language = "french"
+    n_letters = 5
+    n_guesses = 6
+    language = "french"
     require_first_letter = False
-    play_wordle(_n_letters, _n_guesses, _language, require_first_letter)
+    play_wordle(n_letters, n_guesses, language, require_first_letter)

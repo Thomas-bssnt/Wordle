@@ -29,26 +29,10 @@ def _render_hint_row(game) -> str:
     - Correct letters from the previous guesses (colored red)
     - Underscores for the rest
     """
-    # First letter shown only if required
-    if game.require_first_letter:
-        row = [_render_letter(game.first_letter, LetterStatus.CORRECT)]
-        start_pos = 1
-    else:
-        row = []
-        start_pos = 0
-
-    # Initialize all positions as unknown
-    best_letters = ["_"] * (game.n_letters - len(row))
-
-    # Scan all past guesses
-    for guess in game.guesses:
-        for i, (letter, status) in enumerate(guess[start_pos:], start=start_pos):
-            if status == LetterStatus.CORRECT:
-                best_letters[i - start_pos] = _render_letter(letter, status)
-
-    # Build row
-    row.extend(best_letters)
-    return "".join(row)
+    return "".join(
+        _render_letter(letter, LetterStatus.CORRECT) if letter != "_" else "_"
+        for letter in game.hint_letters
+    )
 
 
 def _render_empty_rows(game):
@@ -74,28 +58,8 @@ def _frame_lines(lines: list[str], n_letters: int) -> list[str]:
     return framed
 
 
-def _merge_status(existing: LetterStatus | None, new: LetterStatus) -> LetterStatus:
-    """Keep the strongest status according to Wordle rules."""
-    if existing is None:
-        return new
-    priority = {
-        LetterStatus.WRONG: 0,
-        LetterStatus.PRESENT: 1,
-        LetterStatus.CORRECT: 2,
-    }
-    return new if priority[new] > priority[existing] else existing
-
-
-def _aggregate_keyboard(guesses) -> dict[str, LetterStatus]:
-    keyboard = {}
-    for guess in guesses:
-        for letter, status in guess:
-            keyboard[letter] = _merge_status(keyboard.get(letter), status)
-    return keyboard
-
-
 def _render_keyboard(game) -> list[str]:
-    kb = _aggregate_keyboard(game.guesses)
+    kb = game.letter_statuses
     lines = []
 
     for row in _KEYBOARD_ROWS:
@@ -121,7 +85,7 @@ def display_game(game) -> None:
         lines.append(_render_guess_row(guess))
 
     # 2. Next hint + empty rows (only if not finished)
-    if not game.is_finished:
+    if not game.is_over:
         lines.append(_render_hint_row(game))
         for row in _render_empty_rows(game):
             lines.append(row)
@@ -134,7 +98,7 @@ def display_game(game) -> None:
         print(line)
 
     # 5. Print keyboard (only if not finished)
-    if not game.is_finished:
+    if not game.is_over:
         print()
         for row in _render_keyboard(game):
             print(row)
