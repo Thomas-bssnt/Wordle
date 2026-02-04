@@ -111,8 +111,11 @@ class Wordle:
 
     def _load_words(self, file_path: Path) -> list[str]:
         """Load all words from dictionary file."""
+        if not file_path.exists():
+            raise ValueError(f"Dictionary file not found: {file_path}")
+
         with open(file_path) as file:
-            words = [self._normalize(word.strip()) for word in file.readlines()]
+            words = [self._normalize(word.strip()) for word in file]
         return words
 
     def _get_random_n_letter_word(self) -> str:
