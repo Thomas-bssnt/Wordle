@@ -69,6 +69,12 @@ class Wordle:
         self.guesses.append(checked)
         self._update_letter_statuses(checked)
 
+    def reset(self) -> None:
+        """Reset the game state so a new game can be played."""
+        self.guesses.clear()
+        self.letter_statuses.clear()
+        self._secret_word = self._get_random_n_letter_word()
+
     @property
     def is_over(self) -> bool:
         return len(self.guesses) == self.n_guesses or self.is_success
